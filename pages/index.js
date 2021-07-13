@@ -32,7 +32,11 @@ export default function Home() {
 				</div>
 				<div className="welcomeArea" style={{ gridArea: 'welcomeArea' }}>
 					<Box>
-						<h1 className="title">Bem Vindo(a)</h1>
+						<h1 className="title">
+							Bem Vindo(a)
+						</h1>
+						
+						<OrkutNostalgicIconSet />
 					</Box>
 				</div>
 				<div className="profileRelationsArea" style={{ gridArea: 'profileRelationsArea' }}>
