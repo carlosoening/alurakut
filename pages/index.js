@@ -1,6 +1,6 @@
 import MainGrid from "../src/components/MainGrid";
 import Box from "../src/components/Box";
-import { AlurakutMenu } from '../src/lib/AlurakutCommons';
+import { AlurakutMenu, OrkutNostalgicIconSet } from '../src/lib/AlurakutCommons';
 import { ProfileRelationsBoxWrapper } from "../src/components/ProfileRelations";
 
 const ProfileSidebar = (props) => {
@@ -35,7 +35,7 @@ export default function Home() {
 						<h1 className="title">
 							Bem Vindo(a)
 						</h1>
-						
+
 						<OrkutNostalgicIconSet />
 					</Box>
 				</div>
