@@ -20,6 +20,30 @@ const ProfileSidebar = (props) => {
 	);
 }
 
+const ProfileRelationsBox = (props) => {
+	return (
+		<ProfileRelationsBoxWrapper>
+			<h2 className="smallTitle">
+				{props.title} ({props.items.length})
+			</h2>
+			<ul>
+				{/* {seguidores.map((item, i) => {
+				if (i <= 5) {
+					return (
+						<li key={item.id}>
+							<a href={`/users/${item.title}`} key={item.title}>
+								<img src={item.image} />
+								<span>{item.title}</span>
+							</a>
+						</li>
+					)
+				}
+			})} */}
+			</ul>
+		</ProfileRelationsBoxWrapper>
+	)
+}
+
 export default function Home() {
 	const githubUser = 'carlosoening';
 	const [comunidades, setComunidades] = React.useState([{
@@ -37,6 +61,18 @@ export default function Home() {
 		'felipefialho',
 		'felipefialho',
 	];
+
+	const [seguidores, setSeguidores] = React.useState([]);
+
+	React.useEffect(() => {
+		fetch('https://api.github.com/users/peas/followers')
+			.then(respostaDoServidor => {
+				return respostaDoServidor.json();
+			})
+			.then(respostaCompleta => {
+				setSeguidores(respostaCompleta);
+			});
+	}, []);
 
 	return (
 		<>
@@ -88,6 +124,7 @@ export default function Home() {
 					</Box>
 				</div>
 				<div className="profileRelationsArea" style={{ gridArea: 'profileRelationsArea' }}>
+					<ProfileRelationsBox title="Seguidores" items={seguidores} />
 					<ProfileRelationsBoxWrapper>
 						<h2 className="smallTitle">
 							Comunidades ({comunidades.length})
