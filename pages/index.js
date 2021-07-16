@@ -4,7 +4,7 @@ import Box from "../src/components/Box";
 import { AlurakutMenu, AlurakutProfileSidebarMenuDefault, OrkutNostalgicIconSet } from '../src/lib/AlurakutCommons';
 import { ProfileRelationsBoxWrapper } from "../src/components/ProfileRelations";
 
-const ProfileSidebar = (props) => {
+function ProfileSidebar(props) {
 	return (
 		<Box as="aside">
 			<img src={`https://github.com/${props.githubUser}.png`} style={{ borderRadius: '8px' }} />
@@ -20,7 +20,7 @@ const ProfileSidebar = (props) => {
 	);
 }
 
-const ProfileRelationsBox = (props) => {
+function ProfileRelationsBox(props) {
 	return (
 		<ProfileRelationsBoxWrapper>
 			<h2 className="smallTitle">
@@ -46,11 +46,7 @@ const ProfileRelationsBox = (props) => {
 
 export default function Home() {
 	const githubUser = 'carlosoening';
-	const [comunidades, setComunidades] = React.useState([{
-		id: new Date().toISOString(),
-		title: 'Eu odeio acordar cedo',
-		image: 'https://img10.orkut.br.com/community/52cc4290facd7fa700b897d8a1dc80aa.jpg'
-	}]);
+	const [comunidades, setComunidades] = React.useState([]);
 	const pessoasFavoritas = [
 		'juunegreiros',
 		'omariosouto',
@@ -66,12 +62,38 @@ export default function Home() {
 
 	React.useEffect(() => {
 		fetch('https://api.github.com/users/peas/followers')
-			.then(respostaDoServidor => {
-				return respostaDoServidor.json();
+		.then(respostaDoServidor => {
+			return respostaDoServidor.json();
+		})
+		.then(respostaCompleta => {
+			setSeguidores(respostaCompleta);
+		});
+
+		const DATO_TOKEN_READONLY_API = 'f65915e786e48086e4c2a17bf5fa48'
+		// API GraphQL Dato
+		fetch('https://graphql.datocms.com', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				'Accept': 'application/json',
+				'Authorization': `Bearer ${DATO_TOKEN_READONLY_API}`
+			},
+			body: JSON.stringify({
+				query: `{ 
+					allCommunities { 
+						id, 
+						title, 
+						imageUrl, 
+						creatorSlug 
+					} 
+				}`
 			})
-			.then(respostaCompleta => {
-				setSeguidores(respostaCompleta);
-			});
+		})
+		.then(res => res.json())
+		.then((res) => {
+			console.log(res);
+			setComunidades(res.data.allCommunities)
+		})
 	}, []);
 
 	return (
@@ -96,11 +118,24 @@ export default function Home() {
 							e.preventDefault();
 							const dadosform = new FormData(e.target);
 							const comunidade = {
-								id: new Date().toISOString(),
 								title: dadosform.get('title'),
-								image: dadosform.get('image')
+								imageUrl: dadosform.get('imageUrl'),
+								creatorSlug: githubUser
 							};
-							setComunidades([...comunidades, comunidade]);
+
+							fetch('/api/comunidades', {
+								method: 'POST',
+								headers: {
+									'Content-Type': 'application/json',
+								},
+								body: JSON.stringify(comunidade)
+							}).then(async (response) => {
+								const dados = await response.json();
+								console.log(dados.registroCriado);
+								const comunidade = dados.registroCriado;
+								setComunidades([...comunidades, comunidade]);
+							})
+							
 						}}>
 							<div>
 								<input
@@ -113,7 +148,7 @@ export default function Home() {
 							<div>
 								<input
 									placeholder="Coloque uma URL para usarmos de capa"
-									name="image"
+									name="imageUrl"
 									aria-label="Coloque uma URL para usarmos de capa"
 								/>
 							</div>
@@ -134,8 +169,8 @@ export default function Home() {
 								if (i <= 5) {
 									return (
 										<li key={item.id}>
-											<a href={`/users/${item.title}`} key={item.title}>
-												<img src={item.image} />
+											<a href={`/communities/${item.id}`} key={item.id}>
+												<img src={item.imageUrl} />
 												<span>{item.title}</span>
 											</a>
 										</li>
