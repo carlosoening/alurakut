@@ -1,6 +1,7 @@
 import React from 'react';
 import styled, { css } from 'styled-components';
 import NextLink from 'next/link';
+import nookies from 'nookies';
 
 const BASE_URL = 'http://alurakut.vercel.app/';
 const v = '1';
@@ -35,7 +36,9 @@ export function AlurakutMenu({ githubUser }) {
                 </nav>
 
                 <nav>
-                    <a href={`/logout`}>
+                    <a onClick={() => {
+                      nookies.destroy(null, 'USER_TOKEN')
+                    }} href={`/login`}>
                         Sair
                     </a>
                     <div>
