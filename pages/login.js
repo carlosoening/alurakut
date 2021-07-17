@@ -3,8 +3,9 @@ import { useRouter } from 'next/router';
 import nookies from 'nookies';
 
 export default function LoginPage() {
-    const [githubUser, setGithubUser] = React.useState('carlosoening');
+    const [githubUser, setGithubUser] = React.useState('');
     const router = useRouter();
+    const [disabled, setDisabled] = React.useState(true);
 
     return (
         <main style={{ display: 'flex', flex: 1, alignItems: 'center', justifyContent: 'center' }}>
@@ -18,10 +19,25 @@ export default function LoginPage() {
                 </section>
 
                 <section className="formArea">
-                    <form className="box" onSubmit={(event) => {
+                    <form className="box" onSubmit={async (event) => {
                         event.preventDefault();
-                        console.log('Usuário: ', githubUser);
-                        fetch('https://alurakut.vercel.app/api/login', {
+                        if (!githubUser) return;
+
+                        const usuarioExiste = await fetch(`https://api.github.com/users/${githubUser}`)
+                        .then(async res => {
+                            if (res.status === 200) {
+                                return true;
+                            } else {
+                                return false;
+                            }
+                        });
+
+                        if (!usuarioExiste) {
+                            console.log('Usuário não foi encontrado!');
+                            return;
+                        }
+
+                        await fetch('https://alurakut.vercel.app/api/login', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json'
@@ -46,9 +62,14 @@ export default function LoginPage() {
                             value={githubUser} 
                             onChange={(event) => {
                                 setGithubUser(event.target.value);
+                                if (event.target.value) {
+                                    setDisabled(false);
+                                } else {
+                                    setDisabled(true);
+                                }
                             }} 
                         />
-                        <button type="submit">
+                        <button type="submit" disabled={disabled}>
                             Login
                         </button>
                     </form>
@@ -64,7 +85,6 @@ export default function LoginPage() {
                         </p>
                     </footer>
                 </section>
-
                 <footer className="footerArea">
                     <p>
                         © 2021 alura.com.br - <a href="/">Sobre o Orkut.br</a> - <a href="/">Centro de segurança</a> - <a href="/">Privacidade</a> - <a href="/">Termos</a> - <a href="/">Contato</a>
